@@ -6,12 +6,14 @@ val BloomBackground = Color(0xFFFCFAF8)
 val BloomBrown = Color(0xFFA8564F)
 val BloomPink = Color(0xFFE5C3BE)
 val BloomText = Color(0xFF2E2622)
-
+val BloomSoftPink = Color(0xFFF3DEDC)
 object BloomColors {
     val Background = BloomBackground
     val Primary = BloomBrown
     val PrimaryDark = Color(0xFF7A3E39)
-    val SoftPink = BloomPink
+    val SoftPink = BloomSoftPink
+
+    val welcomeText = Color(0xFF8A7A73)
     val PalePink = Color(0xFFFBF0EE)
     val Text = BloomText
     val Muted = Color(0xFF8C7B75)

@@ -24,7 +24,8 @@ class OnboardingViewModel @Inject constructor(
             "Water",
             "Relaxation",
             "Sleep",
-            "Cycle"
+            "Cycle",
+            "Symptom check-in",
         )
     )
     val selectedGoals = _selectedGoals.asStateFlow()

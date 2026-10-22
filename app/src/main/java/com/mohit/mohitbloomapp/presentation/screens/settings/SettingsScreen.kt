@@ -27,6 +27,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mohit.mohitbloomapp.presentation.screens.settings.components.BloomEditProfileSheet
@@ -608,5 +609,13 @@ private fun GoalTargetRow(
                 color = BloomColors.Sand.copy(alpha = 0.5f)
             )
         }
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+private fun BloomSettingsScreenPreview() {
+    MaterialTheme {
+        BloomSettingsScreen()
     }
 }
