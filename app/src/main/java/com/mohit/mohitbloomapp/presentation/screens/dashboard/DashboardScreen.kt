@@ -1,12 +1,29 @@
 package com.mohit.mohitbloomapp.presentation.screens.dashboard
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -22,9 +39,21 @@ import androidx.compose.material.icons.outlined.NightsStay
 import androidx.compose.material.icons.outlined.Restaurant
 import androidx.compose.material.icons.outlined.Spa
 import androidx.compose.material.icons.outlined.WaterDrop
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -51,6 +80,7 @@ import com.mohit.mohitbloomapp.presentation.screens.dashboard.components.water.B
 import com.mohit.mohitbloomapp.ui.theme.BloomColors
 import com.mohit.mohitbloomapp.ui.theme.Fraunces
 import com.mohit.mohitbloomapp.ui.theme.PlusJakartaSans
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 data class BloomGoal(
@@ -194,33 +224,6 @@ fun DashboardScreen(
         PcosFaqSlider()
 
         Spacer(Modifier.height(10.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            repeat(faqQuestions.size) { index ->
-                Box(
-                    modifier = Modifier
-                        .padding(horizontal = 2.dp)
-                        .size(
-                            width = if (index == 0) 14.dp else 5.dp,
-                            height = 5.dp
-                        )
-                        .clip(CircleShape)
-                        .background(
-                            if (index == 0) {
-                                BloomColors.Primary
-                            } else {
-                                BloomColors.SoftPink
-                            }
-                        )
-                )
-            }
-        }
-
-        Spacer(Modifier.height(20.dp))
 
         // Cycle card
         QuickActionCard(
@@ -794,63 +797,121 @@ private fun TipCard(
     }
 }
 
+private val defaultFaqItems = listOf(
+    "What is PCOS?" to "Understand PCOS and its common symptoms.",
+    "Can diet help?" to "Learn how balanced meals support wellbeing.",
+    "How can I manage stress?" to "Explore simple ways to relax every day."
+)
+
+/** Swipeable FAQ cards with page dots that follow the current page. */
 @Composable
-private fun PcosFaqSlider() {
-    val faqItems = listOf(
-        "What is PCOS?" to "Understand PCOS and its common symptoms.",
-        "Can diet help?" to "Learn how balanced meals support wellbeing.",
-        "How can I manage stress?" to "Explore simple ways to relax every day."
-    )
+fun PcosFaqSlider(
+    modifier: Modifier = Modifier,
+    faqItems: List<Pair<String, String>> = defaultFaqItems
+) {
+    val pagerState = rememberPagerState(pageCount = { faqItems.size })
 
-    LazyRow(
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        contentPadding = PaddingValues(end = 4.dp)
+    Column(modifier = modifier.fillMaxWidth()) {
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier.fillMaxWidth(),
+            // small end padding lets the next card peek in; remove for full-width cards
+            contentPadding = PaddingValues(end = 32.dp),
+            pageSpacing = 12.dp
+        ) { page ->
+            val (title, description) = faqItems[page]
+            FaqCard(title = title, description = description)
+        }
+
+        Spacer(Modifier.height(12.dp))
+
+        PagerDots(
+            pagerState = pagerState,
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        )
+    }
+}
+
+@Composable
+private fun FaqCard(title: String, description: String) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 80.dp),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = BloomColors.Card),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        items(faqItems.size) { index ->
-            val (title, description) = faqItems[index]
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = title,
+                fontSize = 15.sp,
+                fontWeight = FontWeight.W800,
+                fontFamily = PlusJakartaSans,
+                color = BloomColors.Text
+            )
 
-            Card(
-                modifier = Modifier
-                    .width(300.dp)
-                    .height(80.dp),
-                shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = BloomColors.Card
-                ),
-                elevation = CardDefaults.cardElevation(
-                    defaultElevation = 2.dp
-                )
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Text(
-                        text = title,
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.W800,
-                        fontFamily = PlusJakartaSans,
-                        color = BloomColors.Text
-                    )
+            Spacer(Modifier.height(4.dp))
 
-                    Spacer(Modifier.height(4.dp))
-
-                    Text(
-                        text = description,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.W400,
-                        fontFamily = PlusJakartaSans,
-                        lineHeight = 2.sp,
-                        color = BloomColors.Muted
-                    )
-                }
-            }
+            Text(
+                text = description,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.W400,
+                fontFamily = PlusJakartaSans,
+                lineHeight = 16.sp,   // was 2.sp, which squashed the lines together
+                color = BloomColors.Muted
+            )
         }
     }
 }
 
+/** Dots that animate (width + color) as the pager moves; tap a dot to jump to that page. */
+@Composable
+private fun PagerDots(
+    pagerState: PagerState,
+    modifier: Modifier = Modifier
+) {
+    val scope = rememberCoroutineScope()
+
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        repeat(pagerState.pageCount) { index ->
+            val isSelected = pagerState.currentPage == index
+
+            val width by animateDpAsState(
+                targetValue = if (isSelected) 20.dp else 8.dp,
+                label = "dotWidth"
+            )
+            val color by animateColorAsState(
+                targetValue = if (isSelected) BloomColors.Primary
+                else BloomColors.SoftPink.copy(alpha = 0.6f),
+                label = "dotColor"
+            )
+
+            Box(
+                modifier = Modifier
+                    .height(8.dp)
+                    .width(width)
+                    .clip(CircleShape)
+                    .background(color)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) {
+                        scope.launch { pagerState.animateScrollToPage(index) }
+                    }
+            )
+        }
+    }
+}
 
 @Composable
 private fun BloomSectionTitle(title: String) {
