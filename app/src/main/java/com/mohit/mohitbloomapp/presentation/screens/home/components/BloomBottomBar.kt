@@ -14,8 +14,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mohit.mohitbloomapp.presentation.navigation.BottomNavItem
+import com.mohit.mohitbloomapp.ui.theme.BloomBrown
+import com.mohit.mohitbloomapp.ui.theme.BloomColors
 import com.mohit.mohitbloomapp.ui.theme.BloomPink
 import com.mohit.mohitbloomapp.ui.theme.BloomText
+import com.mohit.mohitbloomapp.ui.theme.PlusJakartaSans
 
 @Composable
 fun BloomBottomBar(
@@ -59,7 +62,9 @@ fun BloomBottomBar(
                         Text(
                             text = item.title,
                             fontSize = 11.sp,
-                            fontWeight = FontWeight.Normal
+                            color = if (isSelected) BloomBrown else BloomColors.Muted,
+                            fontWeight = FontWeight.W600,
+                            fontFamily = PlusJakartaSans
                         )
                     },
                     alwaysShowLabel = true,

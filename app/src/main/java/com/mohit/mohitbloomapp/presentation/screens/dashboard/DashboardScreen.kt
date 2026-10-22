@@ -1,16 +1,20 @@
 package com.mohit.mohitbloomapp.presentation.screens.dashboard
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.DirectionsRun
+import androidx.compose.material.icons.filled.Mood
+import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material.icons.outlined.Bedtime
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.ChevronRight
@@ -28,15 +32,17 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import java.time.LocalDate
-
+import com.mohit.mohitbloomapp.R
+import com.mohit.mohitbloomapp.presentation.navigation.BottomNavItem.Companion.items
 import com.mohit.mohitbloomapp.presentation.screens.dashboard.components.BloomLogCycleSheet
 import com.mohit.mohitbloomapp.presentation.screens.dashboard.components.BloomLogMealsSheet
 import com.mohit.mohitbloomapp.presentation.screens.dashboard.components.BloomLogMovementSheet
@@ -45,6 +51,9 @@ import com.mohit.mohitbloomapp.presentation.screens.dashboard.components.BloomLo
 import com.mohit.mohitbloomapp.presentation.screens.dashboard.components.BloomLogSymptomsSheet
 import com.mohit.mohitbloomapp.presentation.screens.dashboard.components.BloomLogWaterSheet
 import com.mohit.mohitbloomapp.ui.theme.BloomColors
+import com.mohit.mohitbloomapp.ui.theme.Fraunces
+import com.mohit.mohitbloomapp.ui.theme.PlusJakartaSans
+import java.time.LocalDate
 
 data class BloomGoal(
     val title: String,
@@ -131,10 +140,63 @@ fun DashboardScreen(
             .padding(top = 20.dp, bottom = 24.dp)
     ) {
 
+// Top greeting
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "GOOD MORNING,",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.W700,
+                    color = BloomColors.Muted,
+                    fontFamily = PlusJakartaSans,
+                    letterSpacing = 1.sp
+                )
+
+                Spacer(Modifier.width(6.dp))
+
+                Text(
+                    text = "Raees",
+                    fontSize = 22.sp,
+                    fontFamily = Fraunces,
+                    fontWeight = FontWeight.W600,
+                    fontStyle = FontStyle.Italic,
+                    color = BloomColors.Text
+                )
+            }
+
+            Image(
+                painter = painterResource(id = R.drawable.person),
+                contentDescription = "Profile",
+                modifier = Modifier
+                    .size(42.dp)
+                    .clip(CircleShape)
+            )
+        }
+
+
+        Spacer(Modifier.height(20.dp))
+
+// Small hero card
         TodayGoalsHero(
-            date = "Thursday, Oct 22",
+            date = LocalDate.now().format(
+                java.time.format.DateTimeFormatter.ofPattern("EEEE, MMM d")
+            ),
             onClick = {}
         )
+
+        Spacer(Modifier.height(24.dp))
+
+        BloomSectionTitle("PCOS FAQ")
+
+        Spacer(Modifier.height(12.dp))
+
+        PcosFaqSlider()
 
         Spacer(Modifier.height(10.dp))
 
@@ -169,7 +231,7 @@ fun DashboardScreen(
         QuickActionCard(
             title = "Cycle",
             subtitle = "Log your last period date",
-            icon = Icons.Outlined.WaterDrop,
+            icon = Icons.Filled.WaterDrop,
             tint = BloomColors.PalePink
         ) {
             showCycleSheet = true
@@ -181,7 +243,7 @@ fun DashboardScreen(
         QuickActionCard(
             title = "Symptom check-in",
             subtitle = "Bloating, skin, mood, sleep quality",
-            icon = Icons.Outlined.Mood,
+            icon = Icons.Filled.Mood,
             tint = BloomColors.PalePink
         ) {
             showSymptomsSheet = true
@@ -366,12 +428,12 @@ private fun TodayGoalsHero(
     ) {
         Box(Modifier.fillMaxSize()) {
 
-            BloomBlossom(
+            Image(
+                painter = painterResource(id = R.drawable.flower),
+                contentDescription = null,
                 modifier = Modifier
                     .align(Alignment.CenterEnd)
-                    .padding(end = 21.dp)
-                    .size(104.dp),
-                alpha = 0.28f
+                    .size(150.dp)
             )
 
             Column(
@@ -559,7 +621,7 @@ private fun GoalProgressCard(
                 .fillMaxWidth()
                 .padding(
                     horizontal = 16.dp,
-                    vertical = 12.dp
+                    vertical = 10.dp
                 ),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -589,7 +651,8 @@ private fun GoalProgressCard(
                 Text(
                     goal.title,
                     fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.W800,
+                    fontFamily = PlusJakartaSans,
                     color = BloomColors.Text
                 )
 
@@ -604,6 +667,8 @@ private fun GoalProgressCard(
                 Text(
                     progressOverride ?: progressText,
                     fontSize = 12.sp,
+                    fontWeight = FontWeight.W600,
+                    fontFamily = PlusJakartaSans,
                     color = BloomColors.Muted
                 )
             }
@@ -661,7 +726,8 @@ private fun TipCard(
                         "LOG LAST NIGHT'S SLEEP",
                         fontSize = 12.sp,
                         color = BloomColors.Gold,
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.W800,
+                        fontFamily = PlusJakartaSans,
                         letterSpacing = 0.3.sp
                     )
 
@@ -671,7 +737,9 @@ private fun TipCard(
                         "You haven't logged sleep yet. Consistent, close-to-8-hour nights can support wellbeing — try avoiding screens before bed if that helps you wind down.",
                         fontSize = 13.sp,
                         lineHeight = 19.sp,
-                        color = BloomColors.Text
+                        color = BloomColors.Text,
+                        fontFamily = PlusJakartaSans,
+                        fontWeight = FontWeight.W400,
                     )
                 }
             }
@@ -689,7 +757,9 @@ private fun TipCard(
                     Text(
                         "Remind me later",
                         color = BloomColors.Text,
-                        fontSize = 12.sp
+                        fontSize = 12.sp,
+                        fontFamily = PlusJakartaSans,
+                        fontWeight = FontWeight.W600
                     )
                 }
 
@@ -709,14 +779,17 @@ private fun TipCard(
                     Icon(
                         Icons.Outlined.Check,
                         contentDescription = null,
-                        modifier = Modifier.size(15.dp)
+                        modifier = Modifier.size(15.dp), tint = White
                     )
 
                     Spacer(Modifier.width(4.dp))
 
                     Text(
                         "Mark as done",
-                        fontSize = 12.sp
+                        fontSize = 12.sp,
+                        color = White,
+                        fontFamily = PlusJakartaSans,
+                        fontWeight = FontWeight.W600
                     )
                 }
             }
@@ -725,12 +798,71 @@ private fun TipCard(
 }
 
 @Composable
+private fun PcosFaqSlider() {
+    val faqItems = listOf(
+        "What is PCOS?" to "Understand PCOS and its common symptoms.",
+        "Can diet help?" to "Learn how balanced meals support wellbeing.",
+        "How can I manage stress?" to "Explore simple ways to relax every day."
+    )
+
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        contentPadding = PaddingValues(end = 4.dp)
+    ) {
+        items(faqItems.size) { index ->
+            val (title, description) = faqItems[index]
+
+            Card(
+                modifier = Modifier
+                    .width(300.dp)
+                    .height(80.dp),
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = BloomColors.Card
+                ),
+                elevation = CardDefaults.cardElevation(
+                    defaultElevation = 2.dp
+                )
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = title,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.W800,
+                        fontFamily = PlusJakartaSans,
+                        color = BloomColors.Text
+                    )
+
+                    Spacer(Modifier.height(4.dp))
+
+                    Text(
+                        text = description,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.W400,
+                        fontFamily = PlusJakartaSans,
+                        lineHeight = 2.sp,
+                        color = BloomColors.Muted
+                    )
+                }
+            }
+        }
+    }
+}
+
+
+@Composable
 private fun BloomSectionTitle(title: String) {
     Text(
         title,
-        fontSize = 17.sp,
-        fontWeight = FontWeight.SemiBold,
+        fontSize = 18.sp,
+        fontWeight = FontWeight.W600,
         fontStyle = FontStyle.Italic,
-        color = BloomColors.Text
+        fontFamily = Fraunces,
+        color = BloomColors.Text,
     )
 }
