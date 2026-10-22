@@ -6,14 +6,14 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import com.mohit.mohitbloomapp.R
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mohit.mohitbloomapp.R
 import com.mohit.mohitbloomapp.presentation.onboarding.viewmodel.OnboardingViewModel
 import com.mohit.mohitbloomapp.ui.theme.BloomBackground
 import com.mohit.mohitbloomapp.ui.theme.BloomBrown
@@ -21,16 +21,23 @@ import com.mohit.mohitbloomapp.ui.theme.BloomPink
 
 @Composable
 fun OnboardingScreen(
-    onComplete: () -> Unit
+    onComplete: () -> Unit,
+    viewModel: OnboardingViewModel = hiltViewModel()
 ) {
-    val viewModel: OnboardingViewModel = hiltViewModel()
+    val currentPage by viewModel.currentPage.collectAsStateWithLifecycle()
+    val name by viewModel.userName.collectAsStateWithLifecycle()
+    val goals by viewModel.selectedGoals.collectAsStateWithLifecycle()
+    val reminderTime by viewModel.reminderTime.collectAsStateWithLifecycle()
+    val reminderEnabled by viewModel.reminderEnabled.collectAsStateWithLifecycle()
+    val isCompleted by viewModel.isCompleted.collectAsStateWithLifecycle()
+    val isSaving by viewModel.isSaving.collectAsStateWithLifecycle()
+    val errorMessage by viewModel.errorMessage.collectAsStateWithLifecycle()
 
-    var step by remember { mutableIntStateOf(0) }
-
-    val name by viewModel.userName.collectAsState()
-    val goals by viewModel.selectedGoals.collectAsState()
-    val reminderTime by viewModel.reminderTime.collectAsState()
-    val reminderEnabled by viewModel.reminderEnabled.collectAsState()
+    LaunchedEffect(isCompleted) {
+        if (isCompleted) {
+            onComplete()
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -42,20 +49,22 @@ fun OnboardingScreen(
     ) {
         Spacer(Modifier.height(24.dp))
 
-// Fixed top row: back button + progress lines
+        // Back button and progress indicators
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(40.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (step > 0) {
+            if (currentPage > 0) {
                 Image(
                     painter = painterResource(id = R.drawable.button),
                     contentDescription = "Back",
                     modifier = Modifier
                         .size(32.dp)
-                        .clickable { step-- }
+                        .clickable {
+                            viewModel.previousPage()
+                        }
                 )
                 Spacer(Modifier.width(8.dp))
             } else {
@@ -72,7 +81,11 @@ fun OnboardingScreen(
                             .weight(1f)
                             .height(5.dp)
                             .background(
-                                color = if (index <= step) BloomBrown else BloomPink,
+                                color = if (index <= currentPage) {
+                                    BloomBrown
+                                } else {
+                                    BloomPink
+                                },
                                 shape = RoundedCornerShape(4.dp)
                             )
                     )
@@ -84,21 +97,21 @@ fun OnboardingScreen(
 
         Spacer(Modifier.height(12.dp))
 
-        when (step) {
+        when (currentPage) {
             0 -> WelcomeScreen(
-                onContinue = { step = 1 }
+                onContinue = viewModel::nextPage
             )
 
             1 -> AboutYouScreen(
                 name = name,
                 onNameChange = viewModel::updateName,
-                onContinue = { step = 2 }
+                onContinue = viewModel::nextPage
             )
 
             2 -> GoalsScreen(
                 selectedGoals = goals,
                 onGoalToggle = viewModel::toggleGoal,
-                onContinue = { step = 3 }
+                onContinue = viewModel::nextPage
             )
 
             3 -> ReminderScreen(
@@ -106,12 +119,24 @@ fun OnboardingScreen(
                 reminderEnabled = reminderEnabled,
                 onReminderTimeChange = viewModel::updateReminderTime,
                 onReminderEnabledChange = viewModel::updateReminderEnabled,
-                onComplete = {
-                    viewModel.completeOnboarding {
-                        onComplete()
-                    }
-                }
+                onComplete = viewModel::completeOnboarding
             )
+        }
+
+        errorMessage?.let { message ->
+            Spacer(Modifier.height(8.dp))
+
+            Text(
+                text = message,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
+
+        if (isSaving) {
+            Spacer(Modifier.height(8.dp))
+
+            CircularProgressIndicator()
         }
     }
 }

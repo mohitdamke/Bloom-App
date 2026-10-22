@@ -12,47 +12,51 @@ import com.mohit.mohitbloomapp.ads.AppOpenAdManager
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
-class MyApp : Application(), Application.ActivityLifecycleCallbacks {
+class MyApp : Application(),
+    Application.ActivityLifecycleCallbacks,
+    DefaultLifecycleObserver {
 
     private var currentActivity: Activity? = null
-    private var appWasBackgrounded = false
+    private var wasInBackground = false
 
     override fun onCreate() {
-        super.onCreate()
+        super<Application>.onCreate()
 
         registerActivityLifecycleCallbacks(this)
+        ProcessLifecycleOwner.get().lifecycle.addObserver(this)
 
         MobileAds.initialize(this) {
-            Log.d("AdMob", "Mobile Ads SDK initialized")
+            Log.d("WAOOAA", "Mobile Ads SDK initialized")
             AppOpenAdManager.loadAd(this)
         }
+    }
 
-        ProcessLifecycleOwner.get().lifecycle.addObserver(
-            object : DefaultLifecycleObserver {
+    override fun onStart(owner: LifecycleOwner) {
+        if (wasInBackground) {
+            wasInBackground = false
 
-                override fun onStart(owner: LifecycleOwner) {
-                    // Called when the app returns to the foreground.
-                    if (appWasBackgrounded) {
-                        currentActivity?.let { activity ->
-                            AppOpenAdManager.showIfAvailable(activity)
-                        }
-                    }
+            currentActivity?.let { activity ->
+                Log.d("WAOOAA", "App returned to foreground")
 
-                    appWasBackgrounded = false
-                }
-
-                override fun onStop(owner: LifecycleOwner) {
-                    appWasBackgrounded = true
+                if (AppOpenAdManager.canShowAds) {
+                    AppOpenAdManager.showIfAvailable(activity)
                 }
             }
-        )
+        }
     }
 
-    override fun onActivityResumed(activity: Activity) {
-        currentActivity = activity
+    override fun onStop(owner: LifecycleOwner) {
+        wasInBackground = true
+        Log.d("WAOOAA", "App moved to background")
     }
 
-    override fun onActivityPaused(activity: Activity) {
+    override fun onActivityStarted(activity: Activity) {
+        if (!AppOpenAdManager.isAdShowing()) {
+            currentActivity = activity
+        }
+    }
+
+    override fun onActivityDestroyed(activity: Activity) {
         if (currentActivity === activity) {
             currentActivity = null
         }
@@ -63,7 +67,9 @@ class MyApp : Application(), Application.ActivityLifecycleCallbacks {
         savedInstanceState: Bundle?
     ) = Unit
 
-    override fun onActivityStarted(activity: Activity) = Unit
+    override fun onActivityResumed(activity: Activity) = Unit
+
+    override fun onActivityPaused(activity: Activity) = Unit
 
     override fun onActivityStopped(activity: Activity) = Unit
 
@@ -71,10 +77,4 @@ class MyApp : Application(), Application.ActivityLifecycleCallbacks {
         activity: Activity,
         outState: Bundle
     ) = Unit
-
-    override fun onActivityDestroyed(activity: Activity) {
-        if (currentActivity === activity) {
-            currentActivity = null
-        }
-    }
 }

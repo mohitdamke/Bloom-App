@@ -186,7 +186,7 @@ fun DashboardScreen(
                 Spacer(Modifier.width(6.dp))
 
                 Text(
-                    text = "Raees",
+                    text = "Sofia",
                     fontSize = 22.sp,
                     fontFamily = Fraunces,
                     fontWeight = FontWeight.W600,

@@ -5,16 +5,19 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
+import javax.inject.Singleton
 
 private val Context.dataStore by preferencesDataStore(
     name = "bloom_preferences"
 )
 
+@Singleton
 class OnboardingDataStore @Inject constructor(
-    private val context: Context
+    @ApplicationContext private val context: Context
 ) {
 
     companion object {
@@ -46,17 +49,37 @@ class OnboardingDataStore @Inject constructor(
         reminderEnabled: Boolean
     ) {
         context.dataStore.edit { preferences ->
-
             preferences[USER_NAME] = name
-
-            preferences[SELECTED_GOALS] =
-                goals.joinToString(",")
-
+            preferences[SELECTED_GOALS] = goals.joinToString(",")
             preferences[REMINDER_TIME] = reminderTime
-
             preferences[REMINDER_ENABLED] = reminderEnabled
 
+            // Mark onboarding complete only when all details are saved.
             preferences[ONBOARDING_COMPLETED] = true
         }
     }
+
+    val userName: Flow<String> =
+        context.dataStore.data.map { preferences ->
+            preferences[USER_NAME] ?: ""
+        }
+
+    val selectedGoals: Flow<Set<String>> =
+        context.dataStore.data.map { preferences ->
+            preferences[SELECTED_GOALS]
+                ?.split(",")
+                ?.filter { it.isNotBlank() }
+                ?.toSet()
+                ?: emptySet()
+        }
+
+    val reminderTime: Flow<String> =
+        context.dataStore.data.map { preferences ->
+            preferences[REMINDER_TIME] ?: "08:00 AM"
+        }
+
+    val reminderEnabled: Flow<Boolean> =
+        context.dataStore.data.map { preferences ->
+            preferences[REMINDER_ENABLED] ?: true
+        }
 }

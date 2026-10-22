@@ -30,6 +30,20 @@ object AppOpenAdManager {
         Log.d(TAG, "App Open Ads ENABLED")
     }
 
+    suspend fun waitForAd(
+        context: Context,
+        timeoutMillis: Long = 2_000L
+    ): Boolean {
+        loadAd(context)
+
+        return withTimeoutOrNull(timeoutMillis.milliseconds) {
+            while (!isAdAvailable()) {
+                delay(100.milliseconds)
+            }
+            true
+        } ?: false
+    }
+
     fun loadAd(context: Context) {
 
         Log.d(
