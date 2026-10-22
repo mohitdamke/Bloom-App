@@ -8,7 +8,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.mohit.mohitbloomapp.data.onboarding.OnboardingDataStore
 import com.mohit.mohitbloomapp.presentation.onboarding.screen.OnboardingScreen
-import com.mohit.mohitbloomapp.presentation.screens.HomeScreen
+import com.mohit.mohitbloomapp.presentation.screens.home.HomeScreen
 import com.mohit.mohitbloomapp.presentation.screens.SplashScreen
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first

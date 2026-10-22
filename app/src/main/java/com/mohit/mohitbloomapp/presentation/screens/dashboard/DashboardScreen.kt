@@ -18,7 +18,6 @@ import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material.icons.outlined.Bedtime
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.ChevronRight
-import androidx.compose.material.icons.outlined.Mood
 import androidx.compose.material.icons.outlined.NightsStay
 import androidx.compose.material.icons.outlined.Restaurant
 import androidx.compose.material.icons.outlined.Spa
@@ -42,14 +41,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mohit.mohitbloomapp.R
-import com.mohit.mohitbloomapp.presentation.navigation.BottomNavItem.Companion.items
-import com.mohit.mohitbloomapp.presentation.screens.dashboard.components.BloomLogCycleSheet
-import com.mohit.mohitbloomapp.presentation.screens.dashboard.components.BloomLogMealsSheet
-import com.mohit.mohitbloomapp.presentation.screens.dashboard.components.BloomLogMovementSheet
-import com.mohit.mohitbloomapp.presentation.screens.dashboard.components.BloomLogRelaxationSheet
-import com.mohit.mohitbloomapp.presentation.screens.dashboard.components.BloomLogSleepSheet
-import com.mohit.mohitbloomapp.presentation.screens.dashboard.components.BloomLogSymptomsSheet
-import com.mohit.mohitbloomapp.presentation.screens.dashboard.components.BloomLogWaterSheet
+import com.mohit.mohitbloomapp.presentation.screens.dashboard.components.cycle.BloomLogCycleSheet
+import com.mohit.mohitbloomapp.presentation.screens.dashboard.components.meal.BloomLogMealsSheet
+import com.mohit.mohitbloomapp.presentation.screens.dashboard.components.movement.BloomLogMovementSheet
+import com.mohit.mohitbloomapp.presentation.screens.dashboard.components.relax.BloomLogRelaxationSheet
+import com.mohit.mohitbloomapp.presentation.screens.dashboard.components.sleep.BloomLogSleepSheet
+import com.mohit.mohitbloomapp.presentation.screens.dashboard.components.symptons.BloomLogSymptomsSheet
+import com.mohit.mohitbloomapp.presentation.screens.dashboard.components.water.BloomLogWaterSheet
 import com.mohit.mohitbloomapp.ui.theme.BloomColors
 import com.mohit.mohitbloomapp.ui.theme.Fraunces
 import com.mohit.mohitbloomapp.ui.theme.PlusJakartaSans
@@ -80,6 +78,7 @@ fun DashboardScreen(
     )
 
     var showTip by rememberSaveable { mutableStateOf(true) }
+    var selectedSymptoms by remember { mutableStateOf<Map<String, String>>(emptyMap()) }
 
     var showMealLog by rememberSaveable { mutableStateOf(false) }
     var showMovementLog by rememberSaveable { mutableStateOf(false) }
@@ -99,10 +98,6 @@ fun DashboardScreen(
     // Cycle and symptom data
     var lastPeriodDate by rememberSaveable {
         mutableStateOf<String?>(null)
-    }
-
-    var selectedSymptoms by rememberSaveable {
-        mutableStateOf(emptyList<String>())
     }
 
     var breakfastChoice by rememberSaveable {
@@ -393,12 +388,14 @@ fun DashboardScreen(
         )
     }
 
+
+// after
     // Symptom check-in bottom sheet
     if (showSymptomsSheet) {
         BloomLogSymptomsSheet(
-            selectedSymptoms = selectedSymptoms.toSet(),
+            selectedSymptoms = selectedSymptoms,
             onDone = { symptoms ->
-                selectedSymptoms = symptoms.toList()
+                selectedSymptoms = symptoms
                 showSymptomsSheet = false
             },
             onDismiss = {

@@ -1,4 +1,4 @@
-package com.mohit.mohitbloomapp.presentation.screens
+package com.mohit.mohitbloomapp.presentation.screens.home
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween

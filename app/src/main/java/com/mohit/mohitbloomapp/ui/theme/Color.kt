@@ -7,6 +7,12 @@ val BloomBrown = Color(0xFFA8564F)
 val BloomPink = Color(0xFFE5C3BE)
 val BloomText = Color(0xFF2E2622)
 val BloomSoftPink = Color(0xFFF3DEDC)
+private val MealSheetBackground = Color(0xFFFCF9F7)
+private val MealSheetPrimary = Color(0xFFAD5750)
+private val MealSheetText = Color(0xFF332A27)
+private val MealSheetMuted = Color(0xFF927F76)
+private val MealSheetBorder = Color(0xFFF2E4E0)
+private val MealSheetSelected = Color(0xFFFAF0EE)
 object BloomColors {
     val Background = BloomBackground
     val Primary = BloomBrown

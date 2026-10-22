@@ -11,10 +11,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.WaterDrop
+import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.Bedtime
 import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material.icons.outlined.Mood
-import androidx.compose.material.icons.outlined.Spa
 import androidx.compose.material.icons.outlined.WaterDrop
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -38,6 +38,24 @@ import com.mohit.mohitbloomapp.ui.theme.BloomColors.SoftPink
 import com.mohit.mohitbloomapp.ui.theme.Fraunces
 import com.mohit.mohitbloomapp.ui.theme.PlusJakartaSans
 
+/** One row in "Symptoms & Observations".
+ *  [weekLevels] = one severity level (0..4) per day, 0 = none/lightest, 4 = severe/darkest. */
+private data class SymptomSummary(
+    val title: String,
+    val subtitle: String,
+    val icon: ImageVector,
+    val weekLevels: List<Int>
+)
+
+/** Light -> dark shades used by the mini bars (level 0..4). */
+private val SeverityColors = listOf(
+    Color(0xFFF4E2DE), // 0 - lightest
+    Color(0xFFE8C6C0), // 1
+    Color(0xFFD9A39B), // 2
+    Color(0xFFB3665F), // 3
+    Color(0xFF7A3A36)  // 4 - darkest
+)
+
 @Composable
 fun InsightsScreen() {
     BloomInsightsScreen()
@@ -59,10 +77,10 @@ fun BloomInsightsScreen() {
     }
 
     val symptoms = listOf(
-        Triple("Bloating", "Moderate or higher on 5 of 7 days", Icons.Outlined.WaterDrop),
-        Triple("Skin & acne", "Moderate or higher on 2 of 7 days", Icons.Outlined.Spa),
-        Triple("Mood", "Moderate or higher on 2 of 7 days", Icons.Outlined.Mood),
-        Triple("Sleep quality", "Moderate or higher on 2 of 7 days", Icons.Outlined.Bedtime)
+        SymptomSummary("Bloating", "Moderate or higher on 5 of 7 days", Icons.Outlined.WaterDrop, listOf(2, 2, 4, 2, 2, 4, 4)),
+        SymptomSummary("Skin & acne", "Moderate or higher on 2 of 7 days", Icons.Outlined.AutoAwesome, listOf(1, 2, 2, 2, 1, 3, 3)),
+        SymptomSummary("Mood", "Moderate or higher on 2 of 7 days", Icons.Outlined.Mood, listOf(1, 1, 2, 2, 3, 3, 2)),
+        SymptomSummary("Sleep quality", "Moderate or higher on 2 of 7 days", Icons.Outlined.Bedtime, listOf(2, 2, 1, 2, 3, 2, 4))
     )
 
     Column(
@@ -107,7 +125,6 @@ fun BloomInsightsScreen() {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Symptoms & Observations Title
         BloomSectionTitle(title = "Cycle")
         Spacer(modifier = Modifier.height(6.dp))
 
@@ -119,13 +136,11 @@ fun BloomInsightsScreen() {
         )
         Spacer(modifier = Modifier.height(18.dp))
 
-        // Symptoms & Observations Title
         BloomSectionTitle(title = "Daily summary")
         Spacer(modifier = Modifier.height(6.dp))
         ProgressInfoCard()
         Spacer(modifier = Modifier.height(18.dp))
 
-        // Symptoms & Observations Title
         BloomSectionTitle(title = "Symptoms & Observations")
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -134,8 +149,13 @@ fun BloomInsightsScreen() {
         Column(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            symptoms.forEach { (title, subtitle, icon) ->
-                SymptomCard(title = title, subtitle = subtitle, icon = icon)
+            symptoms.forEach { symptom ->
+                SymptomCard(
+                    title = symptom.title,
+                    subtitle = symptom.subtitle,
+                    icon = symptom.icon,
+                    weekLevels = symptom.weekLevels
+                )
             }
         }
     }
@@ -324,29 +344,32 @@ private fun PeriodToggle(
     }
 }
 
+/** Symptom row: rounded-square icon, title + subtitle, and a 7-day severity bar strip on the right. */
 @Composable
 private fun SymptomCard(
     title: String,
     subtitle: String,
-    icon: ImageVector
+    icon: ImageVector,
+    weekLevels: List<Int>
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(18.dp),
+        shape = RoundedCornerShape(22.dp),
         colors = CardDefaults.cardColors(containerColor = BloomColors.Card),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(horizontal = 16.dp, vertical = 14.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // Rounded-square icon box
             Box(
                 modifier = Modifier
-                    .size(42.dp)
-                    .clip(CircleShape)
-                    .background(BloomColors.SoftPink.copy(alpha = 0.3f)),
+                    .size(52.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(SoftPink.copy(alpha = 0.3f)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
@@ -356,11 +379,13 @@ private fun SymptomCard(
                     modifier = Modifier.size(22.dp)
                 )
             }
+
             Spacer(modifier = Modifier.width(14.dp))
+
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = title,
-                    fontSize = 15.sp,
+                    fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     fontFamily = PlusJakartaSans,
                     color = BloomColors.Text
@@ -373,6 +398,37 @@ private fun SymptomCard(
                     color = BloomColors.Muted
                 )
             }
+
+            Spacer(modifier = Modifier.width(10.dp))
+
+            // The colourful 7-day strip
+            SeverityBars(levels = weekLevels)
+        }
+    }
+}
+
+/** Mini bar strip: one rounded bar per day, shade = severity level (0 light .. 4 dark). */
+@Composable
+private fun SeverityBars(
+    levels: List<Int>,
+    modifier: Modifier = Modifier,
+    barWidth: Dp = 6.dp,
+    barHeight: Dp = 30.dp,
+    spacing: Dp = 4.dp
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(spacing),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        levels.forEach { level ->
+            Box(
+                modifier = Modifier
+                    .width(barWidth)
+                    .height(barHeight)
+                    .clip(RoundedCornerShape(50))
+                    .background(SeverityColors[level.coerceIn(0, SeverityColors.lastIndex)])
+            )
         }
     }
 }

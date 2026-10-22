@@ -1,4 +1,4 @@
-package com.mohit.mohitbloomapp.presentation.screens.dashboard.components
+package com.mohit.mohitbloomapp.presentation.screens.dashboard.components.cycle
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -8,9 +8,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight.Companion.W400
+import androidx.compose.ui.text.font.FontWeight.Companion.W600
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mohit.mohitbloomapp.ui.theme.BloomColors
+import com.mohit.mohitbloomapp.ui.theme.Fraunces
+import com.mohit.mohitbloomapp.ui.theme.PlusJakartaSans
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -63,7 +67,9 @@ fun BloomLogCycleSheet(
 
                 Text(
                     text = "Log Cycle",
-                    fontSize = 21.sp,
+                    fontSize = 22.sp,
+                    fontFamily = Fraunces,
+                    fontWeight = W600,
                     color = BloomColors.Text
                 )
             }
@@ -73,6 +79,8 @@ fun BloomLogCycleSheet(
             Text(
                 text = "When did your last period start?",
                 fontSize = 14.sp,
+                fontFamily = PlusJakartaSans,
+                fontWeight = W400,
                 color = BloomColors.Muted
             )
 
@@ -86,7 +94,14 @@ fun BloomLogCycleSheet(
                 colors = DatePickerDefaults.colors(
                     containerColor = BloomColors.Background,
                     selectedDayContainerColor = BloomColors.Primary,
-                    todayDateBorderColor = BloomColors.Primary
+                    todayDateBorderColor = BloomColors.Primary,
+                    dividerColor = BloomColors.Muted,
+                    selectedDayContentColor = Color.White,
+                    currentYearContentColor = BloomColors.Text,
+                    titleContentColor = BloomColors.Text,
+                    headlineContentColor = BloomColors.Text,
+                    dayContentColor = BloomColors.Text,
+                    yearContentColor = BloomColors.Text
                 )
             )
 
@@ -114,6 +129,8 @@ fun BloomLogCycleSheet(
                 Text(
                     text = "Done",
                     fontSize = 16.sp,
+                    fontFamily = PlusJakartaSans,
+                    fontWeight = W600,
                     color = Color.White
                 )
             }
