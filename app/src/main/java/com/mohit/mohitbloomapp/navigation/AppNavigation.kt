@@ -22,7 +22,7 @@ fun AppNavigation() {
 
     NavHost(
         navController = navController,
-        startDestination = Routes.Home
+        startDestination = Routes.Onboarding
     ) {
 
         composable(Routes.Splash) {

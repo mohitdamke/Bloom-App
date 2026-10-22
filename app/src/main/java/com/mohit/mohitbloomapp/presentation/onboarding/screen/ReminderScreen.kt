@@ -284,10 +284,23 @@ fun ReminderScreen(
             Text(
                 text = "Enter Bloom",
                 color = Color.White,
+                fontWeight = FontWeight.ExtraBold,
                 fontFamily = PlusJakartaSans,
-                fontWeight = FontWeight.SemiBold
+                fontSize = 18.sp
             )
         }
+
+        Text(text = "I'll set this up later",
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 12.dp)
+                .clickable { onComplete() },
+            fontFamily = PlusJakartaSans,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Medium,
+            color = welcomeText,
+            textAlign = TextAlign.Center
+        )
     }
 }
 

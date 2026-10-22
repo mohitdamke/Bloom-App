@@ -17,6 +17,7 @@ object BloomColors {
     val PalePink = Color(0xFFFBF0EE)
     val Text = BloomText
     val Muted = Color(0xFF8C7B75)
+
     val Card = Color(0xFFFFFFFF)
     val Sand = Color(0xFFF7F3EE)
     val Indigo = Color(0xFF5B507A)
