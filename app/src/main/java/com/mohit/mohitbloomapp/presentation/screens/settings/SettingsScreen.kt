@@ -3,13 +3,25 @@ package com.mohit.mohitbloomapp.presentation.screens.settings
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.DirectionsRun
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.outlined.Bedtime
 import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material.icons.outlined.Mood
@@ -17,9 +29,24 @@ import androidx.compose.material.icons.outlined.PersonOutline
 import androidx.compose.material.icons.outlined.Restaurant
 import androidx.compose.material.icons.outlined.Spa
 import androidx.compose.material.icons.outlined.WaterDrop
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,6 +61,8 @@ import com.mohit.mohitbloomapp.presentation.screens.settings.components.BloomEdi
 import com.mohit.mohitbloomapp.presentation.screens.settings.components.BloomLiveNotificationPreviewSheet
 import com.mohit.mohitbloomapp.presentation.screens.settings.components.BloomReminderTimeSheet
 import com.mohit.mohitbloomapp.ui.theme.BloomColors
+import com.mohit.mohitbloomapp.ui.theme.Fraunces
+import com.mohit.mohitbloomapp.ui.theme.PlusJakartaSans
 
 @Composable
 fun SettingsScreen() {
@@ -98,21 +127,22 @@ fun BloomSettingsScreen(
             Text(
                 text = "Settings",
                 fontSize = 28.sp,
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.W800,
+                fontFamily = Fraunces,
                 color = BloomColors.Text
             )
 
-            Spacer(modifier = Modifier.height(4.dp))
-
             Text(
                 text = "Manage goals, reminders & profile preferences",
-                fontSize = 14.sp,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.W400,
+                fontFamily = PlusJakartaSans,
                 color = BloomColors.Muted
             )
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
-            // Profile Card
+// Profile Card
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(22.dp),
@@ -121,57 +151,90 @@ fun BloomSettingsScreen(
                 ),
                 elevation = CardDefaults.cardElevation(2.dp)
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(18.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                Column(
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Box(
+                    // Profile details
+                    Row(
                         modifier = Modifier
-                            .size(54.dp)
-                            .clip(CircleShape)
-                            .background(BloomColors.SoftPink.copy(alpha = 0.4f)),
-                        contentAlignment = Alignment.Center
+                            .fillMaxWidth()
+                            .padding(18.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(
-                            imageVector = Icons.Outlined.PersonOutline,
-                            contentDescription = "Profile",
-                            tint = BloomColors.Primary,
-                            modifier = Modifier.size(28.dp)
+                        Box(
+                            modifier = Modifier
+                                .size(54.dp)
+                                .clip(CircleShape)
+                                .background(BloomColors.SoftPink.copy(alpha = 0.4f)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.PersonOutline,
+                                contentDescription = "Profile",
+                                tint = BloomColors.Primary,
+                                modifier = Modifier.size(28.dp)
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.width(16.dp))
+                        HorizontalDivider(
+                            color = BloomColors.Sand,
+                            modifier = Modifier
+                                .width(1.dp)
+                                .height(40.dp)
                         )
+                        Column(
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(
+                                text = currentUserName,
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = BloomColors.Text
+                            )
+
+                            Spacer(modifier = Modifier.height(2.dp))
+
+                            Text(
+                                text = "PCOS journey · Not set",
+                                fontSize = 12.sp,
+                                color = BloomColors.Muted
+                            )
+                        }
                     }
 
-                    Spacer(modifier = Modifier.width(16.dp))
+                    // Horizontal divider
+                    HorizontalDivider(
+                        color = BloomColors.Sand,
+                        thickness = 1.dp
+                    )
 
-                    Column(modifier = Modifier.weight(1f)) {
+                    // Edit Profile row
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                onEditProfile()
+                                showEditProfileSheet = true
+                            }
+                            .padding(horizontal = 18.dp, vertical = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
                         Text(
-                            text = currentUserName,
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
+                            text = "Edit Profile",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.W600,
+                            fontFamily = PlusJakartaSans,
                             color = BloomColors.Text
                         )
 
-                        Spacer(modifier = Modifier.height(2.dp))
-
-                        Text(
-                            text = "Wellness Seeker",
-                            fontSize = 12.sp,
-                            color = BloomColors.Muted
+                        Icon(
+                            imageVector = Icons.Default.ChevronRight,
+                            contentDescription = "Edit Profile",
+                            tint = BloomColors.Muted,
+                            modifier = Modifier.size(20.dp)
                         )
-                    }
-
-                    OutlinedButton(
-                        onClick = {
-                            onEditProfile()
-                            showEditProfileSheet = true
-                        },
-                        shape = RoundedCornerShape(16.dp),
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = BloomColors.Primary
-                        )
-                    ) {
-                        Text("Edit", fontSize = 12.sp)
                     }
                 }
             }
@@ -195,7 +258,7 @@ fun BloomSettingsScreen(
                     modifier = Modifier.padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    trackingGoals.forEach { (name, icon, color) ->
+                    trackingGoals.forEachIndexed { index, (name, icon, color) ->
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -224,7 +287,8 @@ fun BloomSettingsScreen(
                                 Text(
                                     text = name,
                                     fontSize = 15.sp,
-                                    fontWeight = FontWeight.Medium,
+                                    fontWeight = FontWeight.W600,
+                                    fontFamily = PlusJakartaSans,
                                     color = BloomColors.Text
                                 )
                             }
@@ -240,9 +304,16 @@ fun BloomSettingsScreen(
                                 )
                             )
                         }
+
+                        // Horizontal divider between goals
+                        if (index < trackingGoals.lastIndex) {
+                            HorizontalDivider(
+                                color = BloomColors.Sand,
+                                thickness = 1.dp
+                            )
+                        }
                     }
-                }
-            }
+                }}
 
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -343,13 +414,16 @@ fun BloomSettingsScreen(
                             Text(
                                 text = "Notifications",
                                 fontSize = 14.sp,
-                                fontWeight = FontWeight.Medium,
+                                fontWeight = FontWeight.W600,
+                                fontFamily = PlusJakartaSans,
                                 color = BloomColors.Text
                             )
 
                             Text(
                                 text = "Daily reminders to log",
                                 fontSize = 12.sp,
+                                fontWeight = FontWeight.W400,
+                                fontFamily = PlusJakartaSans,
                                 color = BloomColors.Muted
                             )
                         }
@@ -397,12 +471,16 @@ fun BloomSettingsScreen(
                         Text(
                             text = "App version",
                             fontSize = 14.sp,
+                            fontWeight = FontWeight.W600,
+                            fontFamily = PlusJakartaSans,
                             color = BloomColors.Text
                         )
 
                         Text(
                             text = "1.0 · Prototype",
                             fontSize = 12.sp,
+                            fontWeight = FontWeight.W400,
+                            fontFamily = PlusJakartaSans,
                             color = BloomColors.Muted
                         )
                     }
@@ -429,7 +507,8 @@ fun BloomSettingsScreen(
                 Text(
                     text = "Sign out",
                     fontSize = 14.sp,
-                    fontWeight = FontWeight.SemiBold
+                    fontWeight = FontWeight.W600,
+                    fontFamily = PlusJakartaSans
                 )
             }
         }
@@ -480,8 +559,9 @@ private fun SectionTitle(title: String) {
     Text(
         text = title,
         fontSize = 17.sp,
-        fontWeight = FontWeight.SemiBold,
+        fontWeight = FontWeight.W600,
         fontStyle = FontStyle.Italic,
+        fontFamily = Fraunces,
         color = BloomColors.Text
     )
 }
@@ -503,13 +583,16 @@ private fun SettingsActionRow(
             Text(
                 text = title,
                 fontSize = 14.sp,
-                fontWeight = FontWeight.Medium,
+                fontWeight = FontWeight.W600,
+                fontFamily = PlusJakartaSans,
                 color = BloomColors.Text
             )
 
             Text(
                 text = subtitle,
                 fontSize = 12.sp,
+                fontWeight = FontWeight.W400,
+                fontFamily = PlusJakartaSans,
                 color = BloomColors.Muted
             )
         }
@@ -560,7 +643,8 @@ private fun GoalTargetRow(
                 text = name,
                 modifier = Modifier.weight(1f),
                 fontSize = 13.sp,
-                fontWeight = FontWeight.Medium,
+                fontWeight = FontWeight.W600,
+                fontFamily = PlusJakartaSans,
                 color = BloomColors.Text
             )
 
@@ -574,6 +658,8 @@ private fun GoalTargetRow(
                 Text(
                     text = "−",
                     fontSize = 16.sp,
+                    fontWeight = FontWeight.W600,
+                    fontFamily = PlusJakartaSans,
                     color = BloomColors.Primary
                 )
             }
@@ -583,7 +669,8 @@ private fun GoalTargetRow(
             Text(
                 text = value,
                 fontSize = 12.sp,
-                fontWeight = FontWeight.SemiBold,
+                fontWeight = FontWeight.W600,
+                fontFamily = PlusJakartaSans,
                 color = BloomColors.Text
             )
 
@@ -599,6 +686,8 @@ private fun GoalTargetRow(
                 Text(
                     text = "+",
                     fontSize = 16.sp,
+                    fontWeight = FontWeight.W600,
+                    fontFamily = PlusJakartaSans,
                     color = BloomColors.Primary
                 )
             }
